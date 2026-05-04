@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.suntheory.GameDatabase.controller.util.GameRepositoryConstants;
+import com.suntheory.GameDatabase.controller.util.GameRepositoryErrors;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
 
@@ -36,12 +36,17 @@ public class GameController {
   }
 
   @PostMapping
-  public Game createNewGame(@RequestBody Game game) {
+  public Game createNewGame(@RequestBody Game game) throws ResponseStatusException {
+    validateAllFieldsPresent(game);
+    validateGameFields(game);
+
     return this.gameRepository.save(game);
   }
 
   @PutMapping("/{id}")
   public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) throws ResponseStatusException {
+    validateGameFields(updatedGame);
+
     Game gameToUpdate = updateGameFields(id, updatedGame);
 
     this.gameRepository.save(gameToUpdate);
@@ -62,10 +67,48 @@ public class GameController {
     Optional<Game> gameOptional = this.gameRepository.findById(id);
 
     if (!gameOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, GameRepositoryConstants.GAME_NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, GameRepositoryErrors.GAME_NOT_FOUND);
     }
 
     return gameOptional.get();
+  }
+
+  private void validateAllFieldsPresent(Game game) throws ResponseStatusException {
+    if (game.getTitle() == null || game.getGenre() == null || game.getPlatform() == null || game.getReleaseYear() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.ALL_FIELDS_REQUIRED);
+    }
+  }
+
+  private void validateGameFields(Game game) throws ResponseStatusException {
+    if(game.getReleaseYear() != null) {
+       validateYearFormat(game.getReleaseYear());
+    }
+
+    if(game.getPlatform() != null) {
+      validatePlatformValue(game.getPlatform());
+    }
+
+    if(game.getGenre() != null) {
+      validateGenreValue(game.getGenre());
+    }
+  }
+
+  private void validateYearFormat(String year) throws ResponseStatusException {
+    if (!year.matches("\\d{4}")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_YEAR_FORMAT);
+    }
+  }
+
+  private void validatePlatformValue(String platform) throws ResponseStatusException {
+    if (!platform.equalsIgnoreCase("PC") && !platform.equalsIgnoreCase("Console") && !platform.equalsIgnoreCase("Handheld") && !platform.equalsIgnoreCase("Mobile")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_PLATFORM_VALUE);
+    }
+  }
+
+  private void validateGenreValue(String genre) throws ResponseStatusException {
+    if (!genre.equalsIgnoreCase("Action") && !genre.equalsIgnoreCase("Adventure") && !genre.equalsIgnoreCase("RPG") && !genre.equalsIgnoreCase("Strategy") && !genre.equalsIgnoreCase("Sports")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_GENRE_VALUE);
+    }
   }
 
   private Game updateGameFields(Long id, Game updatedGame) {
