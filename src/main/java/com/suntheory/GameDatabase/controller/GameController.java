@@ -42,23 +42,7 @@ public class GameController {
 
   @PutMapping("/{id}")
   public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) throws ResponseStatusException {
-    Game gameToUpdate = findGameInDatabase(id);
-
-    if (updatedGame.getTitle() != null) {
-      gameToUpdate.setTitle(updatedGame.getTitle());
-    }
-
-    if (updatedGame.getGenre() != null) {
-      gameToUpdate.setGenre(updatedGame.getGenre());
-    } 
-
-    if (updatedGame.getPlatform() != null) {
-      gameToUpdate.setPlatform(updatedGame.getPlatform());
-    } 
-
-    if (updatedGame.getReleaseYear() != null) {
-      gameToUpdate.setReleaseYear(updatedGame.getReleaseYear());
-    } 
+    Game gameToUpdate = updateGameFields(id, updatedGame);
 
     this.gameRepository.save(gameToUpdate);
 
@@ -83,5 +67,26 @@ public class GameController {
 
     return gameOptional.get();
   }
-  
+
+  private Game updateGameFields(Long id, Game updatedGame) {
+    Game gameToUpdate = findGameInDatabase(id);
+
+    if (updatedGame.getTitle() != null) {
+      gameToUpdate.setTitle(updatedGame.getTitle());
+    }
+
+    if (updatedGame.getGenre() != null) {
+      gameToUpdate.setGenre(updatedGame.getGenre());
+    } 
+
+    if (updatedGame.getPlatform() != null) {
+      gameToUpdate.setPlatform(updatedGame.getPlatform());
+    } 
+
+    if (updatedGame.getReleaseYear() != null) {
+      gameToUpdate.setReleaseYear(updatedGame.getReleaseYear());
+    }
+
+    return gameToUpdate;
+  }  
 }
