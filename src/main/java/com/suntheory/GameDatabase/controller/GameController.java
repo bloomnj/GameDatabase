@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.suntheory.GameDatabase.controller.util.GameRepositoryConstants;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
 
@@ -30,8 +31,8 @@ public class GameController {
   }
 
   @GetMapping("/{id}")
-  public Optional<Game> getGameById(@PathVariable Long id) {
-    return this.gameRepository.findById(id);
+  public Game getGameById(@PathVariable Long id) throws ResponseStatusException {
+    return findGameInDatabase(id);
   }
 
   @PostMapping
@@ -40,14 +41,8 @@ public class GameController {
   }
 
   @PutMapping("/{id}")
-  public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) {
-    Optional<Game> gameToUpdateOptional = this.gameRepository.findById(id);
-
-    if (!gameToUpdateOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not update. Game not found.");  
-    }
-
-    Game gameToUpdate = gameToUpdateOptional.get();
+  public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) throws ResponseStatusException {
+    Game gameToUpdate = findGameInDatabase(id);
 
     if (updatedGame.getTitle() != null) {
       gameToUpdate.setTitle(updatedGame.getTitle());
@@ -71,18 +66,22 @@ public class GameController {
   }
 
   @DeleteMapping("/{id}")
-  public Game deleteGame(@PathVariable Long id) {
-    Optional<Game> gameToDeleteOptional = this.gameRepository.findById(id);
-
-    if (!gameToDeleteOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not delete. Game not found.");     
-    }
-
-    Game gameToDelete = gameToDeleteOptional.get();
+  public Game deleteGame(@PathVariable Long id) throws ResponseStatusException {
+    Game gameToDelete = findGameInDatabase(id);
 
     this.gameRepository.delete(gameToDelete);
 
     return gameToDelete;
+  }
+
+  private Game findGameInDatabase(Long id) throws ResponseStatusException{
+    Optional<Game> gameOptional = this.gameRepository.findById(id);
+
+    if (!gameOptional.isPresent()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, GameRepositoryConstants.GAME_NOT_FOUND);
+    }
+
+    return gameOptional.get();
   }
   
 }

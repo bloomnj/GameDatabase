@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import com.suntheory.GameDatabase.controller.util.GameRepositoryConstants;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,10 +52,10 @@ class GameControllerTest {
     void getGameById_returnsOptionalGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(existingGame));
 
-        Optional<Game> result = gameController.getGameById(1L);
+        Game result = gameController.getGameById(1L);
 
-        assertTrue(result.isPresent());
-        assertEquals(existingGame, result.get());
+        assertTrue(result != null);
+        assertEquals(existingGame, result);
     }
 
     @Test
@@ -104,7 +105,7 @@ class GameControllerTest {
                 () -> gameController.updateGame(2L, updatedGame));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("Game not found"));
+        assertTrue(exception.getReason().contains(GameRepositoryConstants.GAME_NOT_FOUND));
     }
 
     @Test
@@ -125,6 +126,6 @@ class GameControllerTest {
                 () -> gameController.deleteGame(2L));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("Game not found"));
+        assertTrue(exception.getReason().contains(GameRepositoryConstants.GAME_NOT_FOUND));
     }
 }
