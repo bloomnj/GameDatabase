@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: GameDatabase
+  jackson:
+    default-property-inclusion: non_null
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      hbm2ddl:
+        auto: create
+      ddl-auto: create-drop
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: jdbc:h2:file:~/games.db
+    driver-class-name: org.h2.Driver
