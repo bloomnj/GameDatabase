@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.suntheory.GameDatabase.controller.util.GameRepositoryErrors;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
 
@@ -30,24 +31,88 @@ public class GameController {
   }
 
   @GetMapping("/{id}")
-  public Optional<Game> getGameById(@PathVariable Long id) {
-    return this.gameRepository.findById(id);
+  public Game getGameById(@PathVariable Long id) throws ResponseStatusException {
+    return findGameInDatabase(id);
   }
 
   @PostMapping
-  public Game createNewGame(@RequestBody Game game) {
+  public Game createNewGame(@RequestBody Game game) throws ResponseStatusException {
+    validateAllFieldsPresent(game);
+    validateGameFields(game);
+
     return this.gameRepository.save(game);
   }
 
   @PutMapping("/{id}")
-  public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) {
-    Optional<Game> gameToUpdateOptional = this.gameRepository.findById(id);
+  public Game updateGame(@PathVariable Long id, @RequestBody Game updatedGame) throws ResponseStatusException {
+    validateGameFields(updatedGame);
 
-    if (!gameToUpdateOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not update. Game not found.");  
+    Game gameToUpdate = updateGameFields(id, updatedGame);
+
+    this.gameRepository.save(gameToUpdate);
+
+    return gameToUpdate;
+  }
+
+  @DeleteMapping("/{id}")
+  public Game deleteGame(@PathVariable Long id) throws ResponseStatusException {
+    Game gameToDelete = findGameInDatabase(id);
+
+    this.gameRepository.delete(gameToDelete);
+
+    return gameToDelete;
+  }
+
+  private Game findGameInDatabase(Long id) throws ResponseStatusException{
+    Optional<Game> gameOptional = this.gameRepository.findById(id);
+
+    if (!gameOptional.isPresent()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, GameRepositoryErrors.GAME_NOT_FOUND);
     }
 
-    Game gameToUpdate = gameToUpdateOptional.get();
+    return gameOptional.get();
+  }
+
+  private void validateAllFieldsPresent(Game game) throws ResponseStatusException {
+    if (game.getTitle() == null || game.getGenre() == null || game.getPlatform() == null || game.getReleaseYear() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.ALL_FIELDS_REQUIRED);
+    }
+  }
+
+  private void validateGameFields(Game game) throws ResponseStatusException {
+    if(game.getReleaseYear() != null) {
+       validateYearFormat(game.getReleaseYear());
+    }
+
+    if(game.getPlatform() != null) {
+      validatePlatformValue(game.getPlatform());
+    }
+
+    if(game.getGenre() != null) {
+      validateGenreValue(game.getGenre());
+    }
+  }
+
+  private void validateYearFormat(String year) throws ResponseStatusException {
+    if (!year.matches("\\d{4}")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_YEAR_FORMAT);
+    }
+  }
+
+  private void validatePlatformValue(String platform) throws ResponseStatusException {
+    if (!platform.equalsIgnoreCase("PC") && !platform.equalsIgnoreCase("Console") && !platform.equalsIgnoreCase("Handheld") && !platform.equalsIgnoreCase("Mobile")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_PLATFORM_VALUE);
+    }
+  }
+
+  private void validateGenreValue(String genre) throws ResponseStatusException {
+    if (!genre.equalsIgnoreCase("Action") && !genre.equalsIgnoreCase("Adventure") && !genre.equalsIgnoreCase("RPG") && !genre.equalsIgnoreCase("Strategy") && !genre.equalsIgnoreCase("Sports")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_GENRE_VALUE);
+    }
+  }
+
+  private Game updateGameFields(Long id, Game updatedGame) {
+    Game gameToUpdate = findGameInDatabase(id);
 
     if (updatedGame.getTitle() != null) {
       gameToUpdate.setTitle(updatedGame.getTitle());
@@ -63,26 +128,8 @@ public class GameController {
 
     if (updatedGame.getReleaseYear() != null) {
       gameToUpdate.setReleaseYear(updatedGame.getReleaseYear());
-    } 
-
-    this.gameRepository.save(gameToUpdate);
-
-    return gameToUpdate;
-  }
-
-  @DeleteMapping("/{id}")
-  public Game deleteGame(@PathVariable Long id) {
-    Optional<Game> gameToDeleteOptional = this.gameRepository.findById(id);
-
-    if (!gameToDeleteOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not delete. Game not found.");     
     }
 
-    Game gameToDelete = gameToDeleteOptional.get();
-
-    this.gameRepository.delete(gameToDelete);
-
-    return gameToDelete;
-  }
-  
+    return gameToUpdate;
+  }  
 }

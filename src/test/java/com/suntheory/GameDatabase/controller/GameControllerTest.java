@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import com.suntheory.GameDatabase.controller.util.GameRepositoryErrors;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,10 +52,21 @@ class GameControllerTest {
     void getGameById_returnsOptionalGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(existingGame));
 
-        Optional<Game> result = gameController.getGameById(1L);
+        Game result = gameController.getGameById(1L);
 
-        assertTrue(result.isPresent());
-        assertEquals(existingGame, result.get());
+        assertTrue(result != null);
+        assertEquals(existingGame, result);
+    }
+
+    @Test
+    void getGameById_whenGameNotFound_throwsNotFound() {
+        when(gameRepository.findById(2L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.getGameById(2L));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.GAME_NOT_FOUND));
     }
 
     @Test
@@ -70,6 +82,66 @@ class GameControllerTest {
         Game result = gameController.createNewGame(newGame);
 
         assertEquals(newGame, result);
+    }
+
+    @Test
+    void createNewGame_whenMissingFields_throwsBadRequest() {
+        Game newGame = new Game();
+        newGame.setTitle(null);
+        newGame.setGenre("RPG");
+        newGame.setPlatform("Console");
+        newGame.setReleaseYear("2025");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.createNewGame(newGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.ALL_FIELDS_REQUIRED));
+    }
+
+    @Test
+    void createNewGame_whenInvalidYearFormat_throwsBadRequest() {
+        Game newGame = new Game();
+        newGame.setTitle("New Game");
+        newGame.setGenre("RPG");
+        newGame.setPlatform("Console");
+        newGame.setReleaseYear("25");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.createNewGame(newGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_YEAR_FORMAT));
+    }
+
+    @Test
+    void createNewGame_whenInvalidPlatform_throwsBadRequest() {
+        Game newGame = new Game();
+        newGame.setTitle("New Game");
+        newGame.setGenre("RPG");
+        newGame.setPlatform("Invalid");
+        newGame.setReleaseYear("2025");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.createNewGame(newGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_PLATFORM_VALUE));
+    }
+
+    @Test
+    void createNewGame_whenInvalidGenre_throwsBadRequest() {
+        Game newGame = new Game();
+        newGame.setTitle("New Game");
+        newGame.setGenre("Invalid");
+        newGame.setPlatform("Console");
+        newGame.setReleaseYear("2025");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.createNewGame(newGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_GENRE_VALUE));
     }
 
     @Test
@@ -104,7 +176,52 @@ class GameControllerTest {
                 () -> gameController.updateGame(2L, updatedGame));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("Game not found"));
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.GAME_NOT_FOUND));
+    }
+
+    @Test
+    void updateGame_whenInvalidYearFormat_throwsBadRequest() {
+        Game updatedGame = new Game();
+        updatedGame.setTitle("Updated Title");
+        updatedGame.setGenre("Action");
+        updatedGame.setPlatform("PC");
+        updatedGame.setReleaseYear("25");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.updateGame(1L, updatedGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_YEAR_FORMAT));
+    }
+
+    @Test
+    void updateGame_whenInvalidPlatform_throwsBadRequest() {
+        Game updatedGame = new Game();
+        updatedGame.setTitle("Updated Title");
+        updatedGame.setGenre("Action");
+        updatedGame.setPlatform("Invalid");
+        updatedGame.setReleaseYear("2024");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.updateGame(1L, updatedGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_PLATFORM_VALUE));
+    }
+
+    @Test
+    void updateGame_whenInvalidGenre_throwsBadRequest() {
+        Game updatedGame = new Game();
+        updatedGame.setTitle("Updated Title");
+        updatedGame.setGenre("Invalid");
+        updatedGame.setPlatform("PC");
+        updatedGame.setReleaseYear("2024");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> gameController.updateGame(1L, updatedGame));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.INVALID_GENRE_VALUE));
     }
 
     @Test
@@ -125,6 +242,6 @@ class GameControllerTest {
                 () -> gameController.deleteGame(2L));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("Game not found"));
+        assertTrue(exception.getReason().contains(GameRepositoryErrors.GAME_NOT_FOUND));
     }
 }
