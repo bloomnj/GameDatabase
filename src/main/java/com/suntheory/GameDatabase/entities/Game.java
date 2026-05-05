@@ -1,5 +1,8 @@
 package com.suntheory.GameDatabase.entities;
 
+import com.suntheory.GameDatabase.enums.Genres;
+import com.suntheory.GameDatabase.enums.Platforms;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,10 +23,10 @@ public class Game {
   private String title;
 
   @Column(name = "genre")
-  private String genre;
+  private Genres genre;
 
   @Column(name = "platform")
-  private String platform;
+  private Platforms platform;
 
   @Column(name = "release_year")
   private String releaseYear;
