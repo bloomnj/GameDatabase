@@ -83,31 +83,11 @@ public class GameController {
     if(game.getReleaseYear() != null) {
        validateYearFormat(game.getReleaseYear());
     }
-
-    if(game.getPlatform() != null) {
-      validatePlatformValue(game.getPlatform());
-    }
-
-    if(game.getGenre() != null) {
-      validateGenreValue(game.getGenre());
-    }
   }
 
   private void validateYearFormat(String year) throws ResponseStatusException {
     if (!year.matches("\\d{4}")) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_YEAR_FORMAT);
-    }
-  }
-
-  private void validatePlatformValue(String platform) throws ResponseStatusException {
-    if (!platform.equalsIgnoreCase("PC") && !platform.equalsIgnoreCase("Console") && !platform.equalsIgnoreCase("Handheld") && !platform.equalsIgnoreCase("Mobile")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_PLATFORM_VALUE);
-    }
-  }
-
-  private void validateGenreValue(String genre) throws ResponseStatusException {
-    if (!genre.equalsIgnoreCase("Action") && !genre.equalsIgnoreCase("Adventure") && !genre.equalsIgnoreCase("RPG") && !genre.equalsIgnoreCase("Strategy") && !genre.equalsIgnoreCase("Sports")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.INVALID_GENRE_VALUE);
     }
   }
 

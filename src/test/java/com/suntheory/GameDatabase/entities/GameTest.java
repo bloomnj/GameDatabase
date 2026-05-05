@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.suntheory.GameDatabase.enums.Genres;
+import com.suntheory.GameDatabase.enums.Platforms;
+
 class GameTest {
 
     private Game game;
@@ -29,14 +32,14 @@ class GameTest {
 
     @Test
     void testGameGenreGetterAndSetter() {
-        String testGenre = "Adventure";
+        Genres testGenre = Genres.ADVENTURE;
         game.setGenre(testGenre);
         assertEquals(testGenre, game.getGenre());
     }
 
     @Test
     void testGamePlatformGetterAndSetter() {
-        String testPlatform = "Nintendo Switch";
+        Platforms testPlatform = Platforms.NINTENDO_SWITCH;
         game.setPlatform(testPlatform);
         assertEquals(testPlatform, game.getPlatform());
     }

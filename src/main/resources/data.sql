@@ -9,5 +9,5 @@ INSERT INTO games (title, genre, platform, release_year) VALUES
 ('Stardew Valley', 'Simulation', 'PC', '2016'),
 ('Minecraft', 'Sandbox', 'Multi-Platform', '2011'),
 ('The Witcher 3: Wild Hunt', 'Action RPG', 'PC', '2015'),
-('God of War Ragnarök', 'Action Adventure', 'PlayStation 5', '2022'),
+('God of War Ragnarök', 'Adventure', 'PlayStation 5', '2022'),
 ('Super Mario Bros. Wonder', 'Platformer', 'Nintendo Switch', '2023');

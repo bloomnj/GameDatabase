@@ -11,6 +11,8 @@ This project exposes CRUD endpoints under `/api/games` for `Game` entities with 
 - `platform`
 - `releaseYear`
 
+`genre` and `platform` are enum-backed values that are serialized in API responses using user-friendly display names.
+
 It uses Spring Boot 4.0.6, Java 21, and H2 as the runtime database.
 
 ## Features
@@ -70,7 +72,7 @@ Content-Type: application/json
 
 {
   "title": "My Game",
-  "genre": "Action",
+  "genre": "Action RPG",
   "platform": "PC",
   "releaseYear": "2026"
 }
@@ -84,11 +86,29 @@ Content-Type: application/json
 
 {
   "title": "Updated Title",
-  "platform": "Console"
+  "platform": "PlayStation 5"
 }
 ```
 
 Partial updates are supported: only non-null fields are applied.
+
+### Supported Genre Values
+
+- `Action RPG`
+- `Adventure`
+- `Metroidvania`
+- `Platformer`
+- `Roguelike`
+- `Simulation`
+- `Sandbox`
+- `Puzzle`
+
+### Supported Platform Values
+
+- `PC`
+- `PlayStation 5`
+- `Nintendo Switch`
+- `Multi-Platform`
 
 ### Delete a game
 
@@ -109,6 +129,8 @@ spring:
 
 The schema is recreated on each startup because `spring.jpa.hibernate.ddl-auto` is configured as `create-drop`.
 
+Seed data in `src/main/resources/data.sql` uses the display string values for `genre` and `platform`. JPA converters map the enum-backed fields to these friendly database values on persist and load.
+
 ## Tests
 
 Run unit tests with:
@@ -127,6 +149,7 @@ Run unit tests with:
 ## Notes
 
 - Uses Lombok for entity boilerplate reduction.
+- `genre` and `platform` are enum-backed fields that serialize to friendly display names in API responses.
 - The repository interface is `com.suntheory.GameDatabase.repositories.GameRepository`.
 - The REST controller is `com.suntheory.GameDatabase.controller.GameController`.
 
