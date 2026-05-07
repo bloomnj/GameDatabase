@@ -1,0 +1,231 @@
+openapi: 3.2.0
+info:
+  title: Game Database
+  version: 1.0.0
+  description: A simple Spring Boot 4 REST API for managing game metadata using Spring Data JPA and an H2 database
+paths:
+  /api/games:
+    summary: Get all games
+    description: Returns all of the games stored in the Database
+    get:
+      tags:
+        - games
+      summary:  Gets all games
+      description:  Retrieve all games stored in the Database
+      operationId: getAllGames
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                "All Games":
+                  value: 
+                    [{"genre":"Adventure","id":1,"platform":"Nintendo Switch","releaseYear":"2017","title":"The Legend of Zelda: Breath of the Wild"},{"genre":"Action RPG","id":2,"platform":"PlayStation 5","releaseYear":"2022","title":"Elden Ring"},{"genre":"Action RPG","id":3,"platform":"PC","releaseYear":"2020","title":"Cyberpunk 2077"},{"genre":"Roguelike","id":4,"platform":"Nintendo Switch","releaseYear":"2020","title":"Hades"},{"genre":"Metroidvania","id":5,"platform":"PC","releaseYear":"2017","title":"Hollow Knight"},{"genre":"Simulation","id":6,"platform":"PC","releaseYear":"2016","title":"Stardew Valley"},{"genre":"Sandbox","id":7,"platform":"Multi-Platform","releaseYear":"2011","title":"Minecraft"},{"genre":"Action RPG","id":8,"platform":"PC","releaseYear":"2015","title":"The Witcher 3: Wild Hunt"},{"genre":"Adventure","id":9,"platform":"PlayStation 5","releaseYear":"2022","title":"God of War Ragnarök"},{"genre":"Platformer","id":10,"platform":"Nintendo Switch","releaseYear":"2023","title":"Super Mario Bros. Wonder"}]
+          description: Success
+    post:
+      tags:
+        - games
+      summary: Creates a new game.
+      description: |-
+        Creates a new game.  The following validations must be met for the game to be added.
+        - All fields must be filled out
+        - Genre must be one of the following
+            - Action RPG
+            - Adventure
+            - Metroidvania
+            - Platformer
+            - Roguelike
+            - Simulation
+            - Sandbox
+            - Puzzle
+        - Platform must be one of the following
+            - PlayStation 5
+            - Nintendo Switch
+            - Multi-Platform
+        - Year must be 4 digits
+      operationId: createNewGame
+      requestBody:
+        required: true
+        description: A new game object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              examples:
+                Game:
+                  value:
+                    {"id":11,"title": "Tetris","genre":"Puzzle","platform": "Nintendo Switch","releaseYear": "1989"}
+        '400':
+          description: Invalid genre, platform, or all fields not included
+          content:
+            application/json:
+              examples:
+                Error:
+                  value: 
+                    {"timestamp":"2026-05-07T02:04:16.302Z","status":400,"error":"Bad Request","path":"/api/games"}
+                    
+                
+  /api/games/{id}:
+    summary: Game identified by id
+    description: Retrieves game identified by id for further operations
+    get:
+      tags:
+        - games
+      summary: Gets a single game
+      description:  Gets the game stored in the database identified by id
+      operationId: getGameById
+      parameters:
+        - name: id
+          in: path
+          description: The id of the game
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Game:
+                  value:
+                    {"genre":"Adventure","id":1,"platform":"Nintendo Switch","releaseYear":"2017","title":"The Legend of Zelda: Breath of the Wild"}
+          description: Success
+        '404':
+          content:
+            application/json:
+              examples:
+                Error:
+                  value:
+                    {"timestamp":"2026-05-07T00:58:24.010Z","status":404,"error":"Not Found","path":"/api/games/100"}
+          description: Game not found
+    put:
+      tags:
+        - games
+      summary: Update a game
+      description: |-
+        Updates an existing game.  Partial updates are supported.  Only non-null fields are applied.  If Genre, Platform, or Year are specified, the following validations must be met for the update to occur:
+        - Genre must be one of the following
+            - Action RPG
+            - Adventure
+            - Metroidvania
+            - Platformer
+            - Roguelike
+            - Simulation
+            - Sandbox
+            - Puzzle
+        - Platform must be one of the following
+            - PlayStation 5
+            - Nintendo Switch
+            - Multi-Platform
+        - Year must be 4 digits
+      operationId: updateGame
+      parameters:
+        - name: id
+          in: path
+          description: The id of the game
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: A new game object
+        content:
+          application/json:
+            examples:
+              Update:
+                value:
+                  {"releaseYear": "2026","platform": "PlayStation 5"}
+      responses:
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              examples:
+                Error:
+                  value:
+                    {"timestamp":"2026-05-07T00:58:24.010Z","status":404,"error":"Not Found","path":"/api/games/100"}
+        '400':
+          description: Invalid genre or platform
+          content:
+            application/json:
+              examples:
+                Error:
+                  value: 
+                    {"timestamp":"2026-05-07T02:04:16.302Z","status":400,"error":"Bad Request","path":"/api/games"}
+        '200':
+          description: Success
+          content:
+            application/json:
+              examples:
+                Game:
+                  value:
+                    {"genre": "Puzzle","id": 11,"platform": "PlayStation 5","releaseYear": "2026","title": "Tetris"}
+    delete:
+      tags:
+        - games
+      summary: Delete a game
+      description: Deletes the game identified by the provided id
+      operationId: deleteGame
+      parameters:
+        - name: id
+          in: path
+          description: The id of the game
+          required: true
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              examples:
+                Error:
+                  value:
+                    {"timestamp": "2026-05-07T02:38:07.297Z","status": 404,"error": "Not Found","path": "/api/games/110"}
+        '200':
+          description: Success
+          content:
+            application/json:
+              examples:
+                Game:
+                  value:
+                    {"genre": "Puzzle","id": 11,"platform": "PlayStation 5","releaseYear": "2026","title": "Tetris"}
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The name of the game
+          examples: ["Tetris"]
+        genre:
+          type: string
+          description: Game genre.
+          examples: ["Puzzle"]
+          enum:
+            - Action RPG
+            - Adventure
+            - Metroidvania
+            - Platformer
+            - Roguelike
+            - Simulation
+            - Sandbox
+            - Puzzle
+        platform:
+          type: string
+          description: The platform the game resides on.  
+          examples: ["Nintendo Switch"]
+          enum:
+            - PlayStation 5
+            - Nintendo Switch
+            - Multi-Platform
+        releaseYear:
+          type: string
+          description: The year the game was released.  Must be four digits.
+          examples: ["1989"]
