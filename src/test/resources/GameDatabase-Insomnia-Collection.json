@@ -1,0 +1,459 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-05-07T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.3.1",
+  "resources": [
+    {
+      "_id": "wrk_gamedatabase",
+      "parentId": null,
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "GameDatabase API",
+      "description": "Integration request collection and test suite for the GameDatabase Spring Boot API.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_gamedatabase_base",
+      "parentId": "wrk_gamedatabase",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "existing_game_id": "1",
+        "created_game_id": "",
+        "missing_game_id": "999999"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "existing_game_id",
+          "created_game_id",
+          "missing_game_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1778112000000,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_gamedatabase_games",
+      "parentId": "wrk_gamedatabase",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "Games",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1778112000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_get_all_games",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games",
+      "name": "Get All Games",
+      "description": "Returns all games seeded in the database.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 200', () => {\n  insomnia.expect(status).to.eql(200);\n});\n\ninsomnia.test('returns seeded games', () => {\n  insomnia.expect(jsonBody).to.be.an('array');\n  insomnia.expect(jsonBody.length).to.be.greaterThan(0);\n  insomnia.expect(jsonBody[0]).to.include({\n    id: 1,\n    title: 'The Legend of Zelda: Breath of the Wild',\n    genre: 'Adventure',\n    platform: 'Nintendo Switch',\n    releaseYear: '2017',\n  });\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999999,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_game_by_id",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games/{{ _.existing_game_id }}",
+      "name": "Get Game By ID",
+      "description": "Returns a single game by ID.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 200', () => {\n  insomnia.expect(status).to.eql(200);\n});\n\ninsomnia.test('returns game by ID', () => {\n  insomnia.expect(jsonBody).to.include({\n    id: 1,\n    title: 'The Legend of Zelda: Breath of the Wild',\n    genre: 'Adventure',\n    platform: 'Nintendo Switch',\n    releaseYear: '2017',\n  });\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999998,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_missing_game",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games/{{ _.missing_game_id }}",
+      "name": "Get Missing Game",
+      "description": "Returns a bad request error for an ID that does not exist.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 400', () => {\n  insomnia.expect(status).to.eql(400);\n});\n\ninsomnia.test('returns game not found error', () => {\n  insomnia.expect(jsonBody.message).to.eql('Game id not found in database.');\n  insomnia.expect(jsonBody.errors).to.include('Request body is not valid.');\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999997,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_game",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games",
+      "name": "Create Game",
+      "description": "Creates a valid game.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Tetris\",\n  \"genre\": \"Puzzle\",\n  \"platform\": \"Nintendo Switch\",\n  \"releaseYear\": \"1989\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 200', () => {\n  insomnia.expect(status).to.eql(200);\n});\n\ninsomnia.test('creates game', () => {\n  insomnia.expect(jsonBody.id).to.be.a('number');\n  insomnia.expect(jsonBody).to.include({\n    title: 'Tetris',\n    genre: 'Puzzle',\n    platform: 'Nintendo Switch',\n    releaseYear: '1989',\n  });\n});\n\ninsomnia.environment.set('created_game_id', jsonBody.id);",
+      "authentication": {},
+      "metaSortKey": -1778111999996,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_game_missing_title",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games",
+      "name": "Create Game Missing Title",
+      "description": "Returns a validation error when a required field is missing.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"genre\": \"Puzzle\",\n  \"platform\": \"Nintendo Switch\",\n  \"releaseYear\": \"1989\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 400', () => {\n  insomnia.expect(status).to.eql(400);\n});\n\ninsomnia.test('returns required fields error', () => {\n  insomnia.expect(jsonBody.message).to.eql('All fields (title, genre, platform, releaseYear) are required.');\n  insomnia.expect(jsonBody.errors).to.include('Request body is not valid.');\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999995,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_game_invalid_year",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games",
+      "name": "Create Game Invalid Year",
+      "description": "Returns a validation error when releaseYear is not four digits.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Bad Year Game\",\n  \"genre\": \"Puzzle\",\n  \"platform\": \"Nintendo Switch\",\n  \"releaseYear\": \"19-89\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 400', () => {\n  insomnia.expect(status).to.eql(400);\n});\n\ninsomnia.test('returns invalid year error', () => {\n  insomnia.expect(jsonBody.message).to.eql('Release year must be a valid four-digit year.');\n  insomnia.expect(jsonBody.errors).to.include('Request body is not valid.');\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999994,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_game",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games/{{ _.created_game_id }}",
+      "name": "Update Game",
+      "description": "Partially updates an existing game.",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"platform\": \"PlayStation 5\",\n  \"releaseYear\": \"2026\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\nconst createdGameId = Number(insomnia.environment.get('created_game_id'));\n\ninsomnia.test('returns HTTP 200', () => {\n  insomnia.expect(status).to.eql(200);\n});\n\ninsomnia.test('applies partial update', () => {\n  insomnia.expect(jsonBody).to.include({\n    id: createdGameId,\n    title: 'Tetris',\n    genre: 'Puzzle',\n    platform: 'PlayStation 5',\n    releaseYear: '2026',\n  });\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999993,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_game_invalid_year",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games/{{ _.existing_game_id }}",
+      "name": "Update Game Invalid Year",
+      "description": "Returns a validation error for an invalid update year.",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"releaseYear\": \"2026-01\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\n\ninsomnia.test('returns HTTP 400', () => {\n  insomnia.expect(status).to.eql(400);\n});\n\ninsomnia.test('returns invalid year error', () => {\n  insomnia.expect(jsonBody.message).to.eql('Release year must be a valid four-digit year.');\n  insomnia.expect(jsonBody.errors).to.include('Request body is not valid.');\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999992,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_game",
+      "parentId": "fld_gamedatabase_games",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "url": "{{ _.base_url }}/api/games/{{ _.created_game_id }}",
+      "name": "Delete Game",
+      "description": "Deletes an existing game.",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "const jsonBody = insomnia.response.json();\nconst status = insomnia.response.code ?? insomnia.response.status;\nconst createdGameId = Number(insomnia.environment.get('created_game_id'));\n\ninsomnia.test('returns HTTP 200', () => {\n  insomnia.expect(status).to.eql(200);\n});\n\ninsomnia.test('deletes created game', () => {\n  insomnia.expect(jsonBody.id).to.eql(createdGameId);\n  insomnia.expect(jsonBody.title).to.eql('Tetris');\n});",
+      "authentication": {},
+      "metaSortKey": -1778111999991,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "uts_gamedatabase_integration",
+      "parentId": "wrk_gamedatabase",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "GameDatabase Integration Tests",
+      "metaSortKey": -1778111999990,
+      "_type": "unit_test_suite"
+    },
+    {
+      "_id": "ut_get_all_games_returns_seed_data",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "GET /api/games returns seed data",
+      "requestId": "req_get_all_games",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(200);\nexpect(body).to.be.an('array');\nexpect(body.length).to.be.greaterThan(0);\nexpect(body[0]).to.include({\n  id: 1,\n  title: 'The Legend of Zelda: Breath of the Wild',\n  genre: 'Adventure',\n  platform: 'Nintendo Switch',\n  releaseYear: '2017',\n});",
+      "metaSortKey": -1778111999989,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_get_game_by_id_returns_game",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "GET /api/games/{id} returns one game",
+      "requestId": "req_get_game_by_id",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(200);\nexpect(body).to.include({\n  id: 1,\n  title: 'The Legend of Zelda: Breath of the Wild',\n  genre: 'Adventure',\n  platform: 'Nintendo Switch',\n  releaseYear: '2017',\n});",
+      "metaSortKey": -1778111999988,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_get_missing_game_returns_bad_request",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "GET missing game returns 400",
+      "requestId": "req_get_missing_game",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(400);\nexpect(body.message).to.equal('Game id not found in database.');\nexpect(body.errors).to.include('Request body is not valid.');",
+      "metaSortKey": -1778111999987,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_create_game_returns_created_game",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "POST /api/games creates a game",
+      "requestId": "req_create_game",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(200);\nexpect(body.id).to.be.a('number');\nexpect(body).to.include({\n  title: 'Tetris',\n  genre: 'Puzzle',\n  platform: 'Nintendo Switch',\n  releaseYear: '1989',\n});",
+      "metaSortKey": -1778111999986,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_create_game_missing_title_returns_bad_request",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "POST missing title returns 400",
+      "requestId": "req_create_game_missing_title",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(400);\nexpect(body.message).to.equal('All fields (title, genre, platform, releaseYear) are required.');\nexpect(body.errors).to.include('Request body is not valid.');",
+      "metaSortKey": -1778111999985,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_create_game_invalid_year_returns_bad_request",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "POST invalid year returns 400",
+      "requestId": "req_create_game_invalid_year",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(400);\nexpect(body.message).to.equal('Release year must be a valid four-digit year.');\nexpect(body.errors).to.include('Request body is not valid.');",
+      "metaSortKey": -1778111999984,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_update_game_applies_partial_update",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "PUT /api/games/{id} applies partial update",
+      "requestId": "req_update_game",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(200);\nexpect(body).to.include({\n  id: 1,\n  title: 'The Legend of Zelda: Breath of the Wild',\n  genre: 'Adventure',\n  platform: 'PlayStation 5',\n  releaseYear: '2026',\n});",
+      "metaSortKey": -1778111999983,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_update_game_invalid_year_returns_bad_request",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "PUT invalid year returns 400",
+      "requestId": "req_update_game_invalid_year",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(400);\nexpect(body.message).to.equal('Release year must be a valid four-digit year.');\nexpect(body.errors).to.include('Request body is not valid.');",
+      "metaSortKey": -1778111999982,
+      "_type": "unit_test"
+    },
+    {
+      "_id": "ut_delete_game_removes_game",
+      "parentId": "uts_gamedatabase_integration",
+      "modified": 1778112000000,
+      "created": 1778112000000,
+      "name": "DELETE /api/games/{id} removes a game",
+      "requestId": "req_delete_game",
+      "code": "const response = await insomnia.send();\nconst body = JSON.parse(response.data);\n\nexpect(response.status).to.equal(200);\nexpect(body.id).to.equal(1);\nexpect(body.title).to.be.a('string');",
+      "metaSortKey": -1778111999981,
+      "_type": "unit_test"
+    }
+  ]
+}

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.suntheory.GameDatabase.controller.util.GameRepositoryErrors;
 import com.suntheory.GameDatabase.entities.Game;
 import com.suntheory.GameDatabase.repositories.GameRepository;
+import com.suntheory.GameDatabase.util.GameRepositoryErrors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,7 +67,7 @@ public class GameController {
     Optional<Game> gameOptional = this.gameRepository.findById(id);
 
     if (!gameOptional.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, GameRepositoryErrors.GAME_NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, GameRepositoryErrors.GAME_NOT_FOUND);
     }
 
     return gameOptional.get();
