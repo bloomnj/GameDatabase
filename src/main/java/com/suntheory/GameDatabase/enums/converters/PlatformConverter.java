@@ -1,6 +1,7 @@
 package com.suntheory.GameDatabase.enums.converters;
 
 import com.suntheory.GameDatabase.enums.Platforms;
+import com.suntheory.GameDatabase.util.GameRepositoryErrors;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -25,7 +26,7 @@ public class PlatformConverter implements AttributeConverter<Platforms, String> 
     return Stream.of(Platforms.values())
         .filter(p -> p.getDisplayName().equalsIgnoreCase(dbData))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Invalid platform value: " + dbData));
+        .orElseThrow(() -> new IllegalArgumentException(GameRepositoryErrors.INVALID_PLATFORM_VALUE + dbData));
   } 
   
 }

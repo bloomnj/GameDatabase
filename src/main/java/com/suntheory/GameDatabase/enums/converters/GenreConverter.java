@@ -1,6 +1,7 @@
 package com.suntheory.GameDatabase.enums.converters;
 
 import com.suntheory.GameDatabase.enums.Genres;
+import com.suntheory.GameDatabase.util.GameRepositoryErrors;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -25,6 +26,6 @@ public class GenreConverter implements AttributeConverter<Genres, String> {
     return Stream.of(Genres.values())
         .filter(g -> g.getDisplayName().equalsIgnoreCase(dbData))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Invalid genre value: " + dbData));
+        .orElseThrow(() -> new IllegalArgumentException(GameRepositoryErrors.INVALID_GENRE_VALUE + dbData));
   } 
 }

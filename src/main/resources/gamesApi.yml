@@ -39,6 +39,7 @@ paths:
             - Sandbox
             - Puzzle
         - Platform must be one of the following
+            - PC
             - PlayStation 5
             - Nintendo Switch
             - Multi-Platform
@@ -61,13 +62,31 @@ paths:
                   value:
                     {"id":11,"title": "Tetris","genre":"Puzzle","platform": "Nintendo Switch","releaseYear": "1989"}
         '400':
-          description: Invalid genre, platform, or all fields not included
+          description: Invalid request body, invalid genre, invalid platform, invalid release year, or missing required fields
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
               examples:
-                Error:
+                MissingRequiredFields:
                   value: 
-                    {"timestamp":"2026-05-07T02:04:16.302Z","status":400,"error":"Bad Request","path":"/api/games"}
+                    {"status":"400 BAD_REQUEST","message":"All fields (title, genre, platform, releaseYear) are required.","errors":["Request body is not valid."]}
+                InvalidReleaseYear:
+                  value:
+                    {"status":"400 BAD_REQUEST","message":"Release year must be a valid four-digit year.","errors":["Request body is not valid."]}
+                MalformedJson:
+                  value:
+                    {"status":"400 BAD_REQUEST","message":"JSON parse error: Cannot deserialize value","errors":["HTTP message was not readable."]}
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    {"status":"405 METHOD_NOT_ALLOWED","message":"Request method 'PUT' is not supported","errors":["PUT method is not supported for this request.  Supported methods are GET POST "]}
                     
                 
   /api/games/{id}:
@@ -95,14 +114,26 @@ paths:
                   value:
                     {"genre":"Adventure","id":1,"platform":"Nintendo Switch","releaseYear":"2017","title":"The Legend of Zelda: Breath of the Wild"}
           description: Success
-        '404':
+        '400':
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
               examples:
-                Error:
+                GameNotFound:
                   value:
-                    {"timestamp":"2026-05-07T00:58:24.010Z","status":404,"error":"Not Found","path":"/api/games/100"}
+                    {"status":"400 BAD_REQUEST","message":"Game id not found in database.","errors":["Request body is not valid."]}
           description: Game not found
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    {"status":"405 METHOD_NOT_ALLOWED","message":"Request method 'POST' is not supported","errors":["POST method is not supported for this request.  Supported methods are GET PUT DELETE "]}
     put:
       tags:
         - games
@@ -119,6 +150,7 @@ paths:
             - Sandbox
             - Puzzle
         - Platform must be one of the following
+            - PC
             - PlayStation 5
             - Nintendo Switch
             - Multi-Platform
@@ -136,27 +168,29 @@ paths:
         description: A new game object
         content:
           application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
             examples:
               Update:
                 value:
                   {"releaseYear": "2026","platform": "PlayStation 5"}
       responses:
-        '404':
-          description: Game not found
-          content:
-            application/json:
-              examples:
-                Error:
-                  value:
-                    {"timestamp":"2026-05-07T00:58:24.010Z","status":404,"error":"Not Found","path":"/api/games/100"}
         '400':
-          description: Invalid genre or platform
+          description: Invalid request body, invalid genre, invalid platform, invalid release year, or game not found
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
               examples:
-                Error:
+                GameNotFound:
+                  value:
+                    {"status":"400 BAD_REQUEST","message":"Game id not found in database.","errors":["Request body is not valid."]}
+                InvalidReleaseYear:
                   value: 
-                    {"timestamp":"2026-05-07T02:04:16.302Z","status":400,"error":"Bad Request","path":"/api/games"}
+                    {"status":"400 BAD_REQUEST","message":"Release year must be a valid four-digit year.","errors":["Request body is not valid."]}
+                MalformedJson:
+                  value:
+                    {"status":"400 BAD_REQUEST","message":"JSON parse error: Cannot deserialize value","errors":["HTTP message was not readable."]}
         '200':
           description: Success
           content:
@@ -165,6 +199,16 @@ paths:
                 Game:
                   value:
                     {"genre": "Puzzle","id": 11,"platform": "PlayStation 5","releaseYear": "2026","title": "Tetris"}
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    {"status":"405 METHOD_NOT_ALLOWED","message":"Request method 'POST' is not supported","errors":["POST method is not supported for this request.  Supported methods are GET PUT DELETE "]}
     delete:
       tags:
         - games
@@ -179,14 +223,16 @@ paths:
           schema:
             type: string
       responses:
-        '404':
+        '400':
           description: Game not found
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
               examples:
-                Error:
+                GameNotFound:
                   value:
-                    {"timestamp": "2026-05-07T02:38:07.297Z","status": 404,"error": "Not Found","path": "/api/games/110"}
+                    {"status":"400 BAD_REQUEST","message":"Game id not found in database.","errors":["Request body is not valid."]}
         '200':
           description: Success
           content:
@@ -195,6 +241,16 @@ paths:
                 Game:
                   value:
                     {"genre": "Puzzle","id": 11,"platform": "PlayStation 5","releaseYear": "2026","title": "Tetris"}
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    {"status":"405 METHOD_NOT_ALLOWED","message":"Request method 'POST' is not supported","errors":["POST method is not supported for this request.  Supported methods are GET PUT DELETE "]}
 components:
   schemas:
     Game:
@@ -222,6 +278,7 @@ components:
           description: The platform the game resides on.  
           examples: ["Nintendo Switch"]
           enum:
+            - PC
             - PlayStation 5
             - Nintendo Switch
             - Multi-Platform
@@ -229,3 +286,22 @@ components:
           type: string
           description: The year the game was released.  Must be four digits.
           examples: ["1989"]
+    ApiError:
+      type: object
+      description: Standard error response returned by the global exception handler.
+      properties:
+        status:
+          type: string
+          description: HTTP status code and reason phrase.
+          examples: ["400 BAD_REQUEST"]
+        message:
+          type: string
+          description: Primary error message.
+          examples: ["Release year must be a valid four-digit year."]
+        errors:
+          type: array
+          description: Additional error details.
+          items:
+            type: string
+          examples:
+            - ["Request body is not valid."]

@@ -23,6 +23,7 @@ It uses Spring Boot 4.0.6, Java 21, and H2 as the runtime database.
 - Update an existing game with partial updates
 - Delete a game by ID
 - Repository-based persistence using Spring Data JPA
+- Centralized API exception handling with consistent JSON error responses
 
 ## Prerequisites
 
@@ -64,6 +65,8 @@ GET /api/games
 GET /api/games/{id}
 ```
 
+Returns `400 Bad Request` when the ID does not exist.
+
 ### Create a new game
 
 ```http
@@ -78,6 +81,8 @@ Content-Type: application/json
 }
 ```
 
+All fields are required when creating a game. Invalid request bodies, missing fields, invalid enum values, and invalid release years return `400 Bad Request`.
+
 ### Update an existing game
 
 ```http
@@ -91,6 +96,8 @@ Content-Type: application/json
 ```
 
 Partial updates are supported: only non-null fields are applied.
+
+Invalid request bodies, invalid enum values, invalid release years, and missing IDs return `400 Bad Request`.
 
 ### Supported Genre Values
 
@@ -116,6 +123,27 @@ Partial updates are supported: only non-null fields are applied.
 DELETE /api/games/{id}
 ```
 
+Returns `400 Bad Request` when the ID does not exist.
+
+## Error Handling
+
+The API uses `GlobalExceptionHandler` to convert controller and request parsing errors into a consistent `ApiError` response body:
+
+```json
+{
+  "status": "400 BAD_REQUEST",
+  "message": "Release year must be a valid four-digit year.",
+  "errors": [
+    "Request body is not valid."
+  ]
+}
+```
+
+Common error responses:
+
+- `400 Bad Request` - missing required create fields, invalid release year format, malformed JSON, invalid enum values, or a game ID that does not exist.
+- `405 Method Not Allowed` - unsupported HTTP method for an endpoint.
+
 ## Database Configuration
 
 The application uses H2 with the datasource configured in `src/main/resources/application.yml`:
@@ -139,6 +167,8 @@ Run unit tests with:
 ./gradlew.bat test
 ```
 
+The unit test suite covers controller behavior, enum serialization, JPA enum converters, and the global exception handler. An Insomnia collection with request-level integration tests is available at `src/test/resources/GameDatabase-Insomnia-Collection.json`.
+
 ## Project Structure
 
 - `src/main/java` - application source code
@@ -152,6 +182,7 @@ Run unit tests with:
 - `genre` and `platform` are enum-backed fields that serialize to friendly display names in API responses.
 - The repository interface is `com.suntheory.GameDatabase.repositories.GameRepository`.
 - The REST controller is `com.suntheory.GameDatabase.controller.GameController`.
+- API errors are represented by `com.suntheory.GameDatabase.controller.exception.ApiError` and handled by `com.suntheory.GameDatabase.controller.exception.GlobalExceptionHandler`.
 
 ## Author
 

@@ -1,18 +1,35 @@
 package com.suntheory.GameDatabase.enums;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class EnumSerializationTest {
 
-    @Test
-    void genresReturnDisplayName() {
-        assertEquals("Action RPG", Genres.ACTION_RPG.getDisplayName());
+    @ParameterizedTest
+    @CsvSource({
+            "ACTION_RPG, Action RPG",
+            "ADVENTURE, Adventure",
+            "METROIDVANIA, Metroidvania",
+            "PLATFORMER, Platformer",
+            "ROGUELIKE, Roguelike",
+            "SIMULATION, Simulation",
+            "SANDBOX, Sandbox",
+            "PUZZLE, Puzzle"
+    })
+    void genresReturnDisplayName(String enumName, String displayName) {
+        assertThat(Genres.valueOf(enumName).getDisplayName()).isEqualTo(displayName);
     }
 
-    @Test
-    void platformsReturnDisplayName() {
-        assertEquals("Nintendo Switch", Platforms.NINTENDO_SWITCH.getDisplayName());
+    @ParameterizedTest
+    @CsvSource({
+            "PC, PC",
+            "PLAYSTATION_5, PlayStation 5",
+            "NINTENDO_SWITCH, Nintendo Switch",
+            "MULTI_PLATFORM, Multi-Platform"
+    })
+    void platformsReturnDisplayName(String enumName, String displayName) {
+        assertThat(Platforms.valueOf(enumName).getDisplayName()).isEqualTo(displayName);
     }
 }
